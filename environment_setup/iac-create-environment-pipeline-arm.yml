@@ -1,0 +1,28 @@
+pr: none    # No pull request trigger
+trigger: none    # No automatic build trigger (manual or external trigger required)
+
+variables:
+- group: mlops    # Variable group 'mlops' is being referenced, defined in Azure DevOps project
+
+stages:
+- stage: 'Dev'   # Stage name (Development environment)
+  displayName: 'Dev'
+  jobs:
+  - job: "Provision_Dev"   # Job to provision resources in the Dev environment
+    displayName: "Provision Dev resources"
+    pool:
+      vmImage: 'ubuntu-latest'  # The agent pool to use (Ubuntu VM)
+    timeoutInMinutes: 0  # No timeout limit (runs indefinitely unless manually stopped)
+
+    steps:
+    - task: AzureResourceGroupDeployment@2   # Azure Resource Manager (ARM) task
+      inputs:
+        azureSubscription: '$(AZURE_RM_SVC_CONNECTION)'  # Azure service connection reference
+        action: 'Create Or Update Resource Group'  # Action: create or update the resource group
+        resourceGroupName: '$(RESOURCE_GROUP)'  # Resource group name (from variables)
+        location: $(LOCATION)  # Location for resource group (from variables)
+        templateLocation: 'Linked artifact'  # Template JSON file is part of the build artifacts
+#        csmFile: '$(Build.SourcesDirectory)/environment_setup/cloud-environment.json'  # Path to the ARM template (cloud-environment.json)
+        overrideParameters: '-baseName $(BASE_NAME) -location $(LOCATION) -workspace $(WORKSPACE_NAME)'  # Override template parameters
+        deploymentMode: 'Incremental'  # Deployment mode (incremental update)
+      displayName: 'Deploy OH resources to Azure'  # Name displayed in the pipeline for this step
