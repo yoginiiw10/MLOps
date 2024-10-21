@@ -5,7 +5,7 @@ import pickle
 # Load the pre-trained model from the file
 def load_model():
     try:
-        with open('C:\\Users\\yogin\\Desktop\\MLOps\\model.pkl', 'rb') as file:
+        with open('model.pkl', 'rb') as file:  # Relative path, assuming model.pkl is in the app directory in Docker
             model = pickle.load(file)
         return model
     except FileNotFoundError:

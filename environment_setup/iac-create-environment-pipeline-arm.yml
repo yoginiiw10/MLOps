@@ -22,7 +22,32 @@ stages:
         resourceGroupName: '$(RESOURCE_GROUP)'  # Resource group name (from variables)
         location: $(LOCATION)  # Location for resource group (from variables)
         templateLocation: 'Linked artifact'  # Template JSON file is part of the build artifacts
-#        csmFile: '$(Build.SourcesDirectory)/environment_setup/cloud-environment.json'  # Path to the ARM template (cloud-environment.json)
+        csmFile: '$(Build.SourcesDirectory)/environment_setup/cloud-environment.json'  # Path to the ARM template (cloud-environment.json)
         overrideParameters: '-baseName $(BASE_NAME) -location $(LOCATION) -workspace $(WORKSPACE_NAME)'  # Override template parameters
         deploymentMode: 'Incremental'  # Deployment mode (incremental update)
       displayName: 'Deploy OH resources to Azure'  # Name displayed in the pipeline for this step
+
+  - job: "Setup_Environment"   # Job to set up Python environment
+    displayName: "Set Up Python Environment"
+    pool:
+      vmImage: 'ubuntu-latest'
+
+    steps:
+    - script: |
+        python -m venv venv  # Create a virtual environment
+        source venv/bin/activate  # Activate the virtual environment
+        pip install -r requirements.txt  # Install dependencies
+      displayName: 'Install Python Dependencies'
+
+  - job: "Run_Application"   # Job to run Streamlit app
+    displayName: "Run Streamlit Application"
+    dependsOn:
+      - Setup_Environment  # Ensure environment is set up before running
+    pool:
+      vmImage: 'ubuntu-latest'
+
+    steps:
+    - script: |
+        source venv/bin/activate  # Activate the virtual environment
+        streamlit run app.py --server.port 8080  # Run the Streamlit application
+      displayName: 'Run Streamlit App'
