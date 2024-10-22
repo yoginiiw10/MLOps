@@ -35,12 +35,13 @@ jobs:
           docker tag streamlit-app:latest yojs/streamlit-app:latest 
           docker push yojs/streamlit-app:latest 
 
-      - name: Deploy to Server (Optional)
+      - name: Deploy to Server
         run: |
-          mkdir -p ~/.ssh
+          mkdir ~/.ssh || echo "Directory already exists"
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 49.36.35.138 >> ~/.ssh/known_hosts
           ssh ubuntu@49.36.35.138 "docker pull yojs/streamlit-app:latest && docker run -d -p 8501:8501 yojs/streamlit-app:latest"
+      
       
       
