@@ -43,16 +43,16 @@ jobs:
 
       - name: Add server to known hosts
         run: |
-          ssh-keyscan -H 112.79.72.98 >> ~/.ssh/known_hosts
+          ssh-keyscan -H 49.36.35.190 >> ~/.ssh/known_hosts
           echo "Host added to known_hosts"
 
       - name: Test SSH connection
         run: |
           echo "Testing SSH connection..."
-          ssh -v -i ~/.ssh/id_rsa ubuntu@112.79.72.98 "echo 'SSH connection successful!'"
+          ssh -v -i ~/.ssh/id_rsa ubuntu@49.36.35.190 "echo 'SSH connection successful!'"
 
       - name: Pull and run Docker container on server
         if: ${{ success() }}
         run: |
           echo "Attempting to pull and run Docker container..."
-          ssh -v -i ~/.ssh/id_rsa ubuntu@112.79.72.98 "docker pull yojs/streamlit-app:latest && docker run -d -p 8501:8501 yojs/streamlit-app:latest"
+          ssh -v -i ~/.ssh/id_rsa ubuntu@49.36.35.190 "docker pull yojs/streamlit-app:latest && docker run -d -p 8501:8501 yojs/streamlit-app:latest"
