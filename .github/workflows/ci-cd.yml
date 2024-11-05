@@ -115,4 +115,4 @@ jobs:
         if: ${{ success() }}
         run: |
           echo "Attempting to pull and run Docker container..."
-          ssh -v -i ~/.ssh/id_rsa ubuntu@49.36.35.138 "docker pull yojs/streamlit-app:latest && docker run -d -p 8501:8501 yojs/streamlit-app:latest"
+          ssh -v -i ~/.ssh/id_rsa ubuntu@20.244.44.252 "docker pull yojs/streamlit-app:latest && docker run -d -p 8501:8501 yojs/streamlit-app:latest"
