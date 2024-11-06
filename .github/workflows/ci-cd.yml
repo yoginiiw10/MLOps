@@ -58,6 +58,65 @@
 #          ssh -v -i ~/.ssh/id_rsa ubuntu@49.36.35.138 "docker pull yojs/streamlit-app:latest && docker run -d -p 8501:8501 yojs/streamlit-app:latest"
 
 
+#name: CI/CD Pipeline
+#
+#on:
+#  push:
+#    branches:
+#      - main
+#
+#jobs:
+#  build:
+#    runs-on: ubuntu-latest
+#
+#    steps:
+#      - name: Check out code
+#        uses: actions/checkout@v2
+#
+#      - name: Set up Python
+#        uses: actions/setup-python@v2
+#        with:
+#          python-version: '3.9'
+#
+#      - name: Install dependencies
+#        run: |
+#          pip install -r requirements.txt
+#
+#      - name: Build Docker image
+#        run: |
+#          docker build -t streamlit-app .
+#
+#      - name: Log in to Docker Hub
+#        run: |
+#          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+#
+#      - name: Push Docker image to Docker Hub
+#        run: |
+#          docker tag streamlit-app:latest yojs/streamlit-app:latest
+#          docker push yojs/streamlit-app:latest
+#
+#      - name: Set up SSH Key
+#        run: |
+#          mkdir -p ~/.ssh
+#          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+#          chmod 600 ~/.ssh/id_rsa
+#
+#      - name: Add server to known hosts
+#        run: |
+#          ssh-keyscan -H 20.244.44.252 >> ~/.ssh/known_hosts
+#          echo "Host added to known_hosts"
+#
+##      - name: Test SSH connection
+##        run: |
+##          echo "Testing SSH connection..."
+##          ssh -v -i ~/.ssh/id_rsa ubuntu@20.244.44.252 "echo 'SSH connection successful!'"
+#
+#      - name: Pull and run Docker container on server
+#        if: ${{ success() }}
+#        run: |
+#          echo "Attempting to pull and run Docker container..."
+#          ssh -v -i ~/.ssh/id_rsa ubuntu@20.244.44.252 "docker pull yojs/streamlit-app:latest && docker run -d -p 8501:8501 yojs/streamlit-app:latest"
+
 name: CI/CD Pipeline
 
 on:
@@ -92,7 +151,7 @@ jobs:
 
       - name: Push Docker image to Docker Hub
         run: |
-          docker tag streamlit-app:latest yojs/streamlit-app:latest 
+          docker tag streamlit-app:latest yojs/streamlit-app:latest
           docker push yojs/streamlit-app:latest
 
       - name: Set up SSH Key
@@ -106,13 +165,17 @@ jobs:
           ssh-keyscan -H 20.244.44.252 >> ~/.ssh/known_hosts
           echo "Host added to known_hosts"
 
-#      - name: Test SSH connection
-#        run: |
-#          echo "Testing SSH connection..."
-#          ssh -v -i ~/.ssh/id_rsa ubuntu@20.244.44.252 "echo 'SSH connection successful!'"
+      - name: Test SSH connection
+        run: |
+          echo "Testing SSH connection..."
+          ssh -v -i ~/.ssh/id_rsa ubuntu@20.244.44.252 "echo 'SSH connection successful!'"
 
       - name: Pull and run Docker container on server
         if: ${{ success() }}
         run: |
           echo "Attempting to pull and run Docker container..."
-          ssh -v -i ~/.ssh/id_rsa ubuntu@20.244.44.252 "docker pull yojs/streamlit-app:latest && docker run -d -p 8501:8501 yojs/streamlit-app:latest"
+          ssh -v -i ~/.ssh/id_rsa ubuntu@20.244.44.252 "
+            docker pull yojs/streamlit-app:latest &&
+            docker stop streamlit-app || true &&
+            docker rm streamlit-app || true &&
+            docker run -d --name streamlit-app -p 8501:8501 yojs/streamlit-app:latest"
