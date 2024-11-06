@@ -165,10 +165,10 @@ jobs:
           ssh-keyscan -H 20.244.44.252 >> ~/.ssh/known_hosts
           echo "Host added to known_hosts"
 
-      - name: Test SSH connection
-        run: |
-          echo "Testing SSH connection..."
-          ssh -v -i ~/.ssh/id_rsa ubuntu@20.244.44.252 "echo 'SSH connection successful!'"
+#      - name: Test SSH connection
+#        run: |
+#          echo "Testing SSH connection..."
+#          ssh -v -i ~/.ssh/id_rsa ubuntu@20.244.44.252 "echo 'SSH connection successful!'"
 
       - name: Pull and run Docker container on server
         if: ${{ success() }}
